@@ -14,7 +14,7 @@ class Customer(models.Model):
 
 class Product(models.Model):
     name = models.CharField(max_length=255, null=True)
-    price = models.FloatField()
+    price = models.DecimalField(max_digits=10, decimal_places=2)
     digital = models.BooleanField(default=False, null=True, blank=True)
     image = models.ImageField(blank=True, null=True)
 
@@ -46,7 +46,14 @@ class Order(models.Model):
         for item in total_items:
             total += item.get_total
         return total
-
+    @property
+    def shipping(self):
+        shipping = False
+        orderItems =self.orderitem_set.all()
+        for i in orderItems:
+            if i.product.digital == False:
+                shipping = True
+        return shipping
     # @property
     # def get_cart_total(self):
     #     orderitems = self.orderitem_set.all()
@@ -82,7 +89,8 @@ class OrderItem(models.Model):
     def get_total(self):
         total = self.product.price * self.quantity
         return total
-
+   
+        
 
 
 class ShippingAddress(models.Model):
@@ -92,6 +100,7 @@ class ShippingAddress(models.Model):
         'Order',  on_delete=models.SET_NULL, null=True, blank=True)
     address = models.CharField(max_length=255, null=True)
     city = models.CharField(max_length=255, null=True)
+    state=models.CharField(max_length=255, null=True)
     zipcode = models.CharField(max_length=255, null=True)
     date_added = models.DateTimeField(auto_now_add=True)
 
